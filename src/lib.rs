@@ -2,6 +2,7 @@ pub mod cli;
 pub mod path;
 
 use cli::command;
+use git2::Repository;
 use log::info;
 use path::home_path;
 use rayon::prelude::*;
@@ -36,10 +37,33 @@ pub fn run() -> Result<u8, String> {
                 );
                 Ok(0)
             }
+            "install" => {
+                let github_url: &str =
+                    sub_m.value_of::<&str>("url").ok_or("No git url provided")?;
+                install(dotfile_list, github_url.to_string())?;
+                Ok(0)
+            }
             _ => Err(String::from("Unsupported subcommand".to_string())),
         },
         _ => Err("No subcommand provided".to_string()),
     }
+}
+
+fn copy_file(dest_file_path: &Path, orig_file_path: &Path) -> Result<u8, String> {
+    metadata(orig_file_path)
+        .or_else(|_| Err(format!("{} does not exist", &orig_file_path.display())))?; //check whether the file exists
+    let prefix = &dest_file_path.parent();
+    match prefix {
+        Some(prefix_path) => create_dir_all(prefix_path).map_err(|e| e.to_string())?,
+        _ => (),
+    };
+    copy(orig_file_path, &dest_file_path).map_err(|e| e.to_string())?;
+    info!(
+        "Copied {} to {}",
+        &orig_file_path.display(),
+        &dest_file_path.display()
+    );
+    Ok(0)
 }
 
 /// Saving the provided list of dotfiles to the provided output folder
@@ -59,20 +83,32 @@ fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, S
             let dest_file = format!("{}/{}", destination_dir, dotfile);
             let orig_path = Path::new(&orig_file);
             let dest_path = Path::new(&dest_file);
-            metadata(orig_path)
-                .or_else(|_| Err(format!("{} does not exist", &orig_path.display())))?; //check whether the file exists
-            let prefix = &dest_path.parent();
-            match prefix {
-                Some(prefix_path) => create_dir_all(prefix_path).map_err(|e| e.to_string())?,
-                _ => (),
-            };
-            copy(orig_path, &dest_path).map_err(|e| e.to_string())?;
-            info!(
-                "Copied {} to {}",
-                &orig_path.display(),
-                &dest_path.display()
-            );
-            Ok(0)
+            copy_file(dest_path, orig_path)
+        })
+        .collect()
+}
+
+fn install(dotfile_list: Vec<String>, github_url: String) -> Result<Vec<u8>, String> {
+    let home_dir = home_path()?;
+    let git_dotfiles_dir = format!("{}/dotfiles", home_dir);
+    let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
+
+    let _repo = match git_dotfiles_path.exists() {
+        true => Repository::open(&git_dotfiles_path)
+            .or_else(|_| Err(format!("Folder not exists: {}", git_dotfiles_dir))),
+        _ => match Repository::clone(&github_url, &git_dotfiles_path) {
+            Ok(repo) => Ok(repo),
+            Err(_) => Err(format!("failed to clone: {}", github_url)),
+        },
+    }?;
+    dotfile_list
+        .into_par_iter()
+        .map(|dotfile| {
+            let orig_file = format!("{}/{}", git_dotfiles_dir, dotfile);
+            let dest_file = format!("{}/{}", home_dir, dotfile);
+            let orig_path = Path::new(&orig_file);
+            let dest_path = Path::new(&dest_file);
+            copy_file(dest_path, orig_path)
         })
         .collect()
 }
