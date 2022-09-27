@@ -1,0 +1,6 @@
+dotfiles:
+  - .zshrc
+  - .vimrc
+  - .gitconfig
+  - .ssh/config
+
