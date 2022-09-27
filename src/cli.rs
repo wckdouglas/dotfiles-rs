@@ -13,7 +13,7 @@ pub fn command() -> Result<ArgMatches, String> {
             Arg::with_name("dotfile_yaml")
                 .help("A yaml file containing the dotfile names (see data/dotfiles.yaml)")
                 .long("dotfile-yaml")
-                .short("y")
+                .short('y')
                 .takes_value(true)
                 .required(true),
         )

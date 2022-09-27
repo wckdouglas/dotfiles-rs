@@ -180,6 +180,7 @@ dependencies = [
  "dirs",
  "env_logger",
  "git2",
+ "log",
  "rayon",
  "serde",
  "serde_derive",
