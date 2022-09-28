@@ -5,7 +5,7 @@ use cli::command;
 use git2::build::RepoBuilder;
 use git2::{Cred, FetchOptions, RemoteCallbacks, Repository};
 use log::info;
-use path::home_path;
+use path::{file_to_path, home_path};
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::fs::{copy, create_dir_all, metadata};
@@ -123,8 +123,8 @@ fn git_clone(github_url: &String, git_dotfiles_dir: &String) -> Result<Repositor
             let home_dir = home_path()?;
             let ssh_pub_key_fn = format!("{}/.ssh/id_rsa.pub", &home_dir);
             let ssh_private_key_fn = format!("{}/.ssh/id_rsa", &home_dir);
-            let ssh_pub_key_file_path = Path::new(&ssh_pub_key_fn);
-            let ssh_private_key_file_path = Path::new(&ssh_private_key_fn);
+            let ssh_pub_key_file_path = file_to_path(ssh_pub_key_fn)?;
+            let ssh_private_key_file_path = file_to_path(ssh_private_key_fn)?;
 
             let mut builder = RepoBuilder::new();
             let mut callbacks = RemoteCallbacks::new();
@@ -133,11 +133,10 @@ fn git_clone(github_url: &String, git_dotfiles_dir: &String) -> Result<Repositor
             callbacks.credentials(|_, _, _| {
                 let credentials = Cred::ssh_key(
                     "git",
-                    Some(ssh_pub_key_file_path),
-                    ssh_private_key_file_path,
+                    Some(&ssh_pub_key_file_path),
+                    &ssh_private_key_file_path,
                     None,
-                )
-                .expect("Credential not found from ~/.ssh");
+                ).expect("Credential problem");
                 Ok(credentials)
             });
 
