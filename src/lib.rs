@@ -82,9 +82,9 @@ fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, S
         .map(|dotfile| {
             let orig_file = format!("{}/{}", home_dir, dotfile);
             let dest_file = format!("{}/{}", destination_dir, dotfile);
-            let orig_path = Path::new(&orig_file);
+            let orig_path = file_to_path(orig_file)?;
             let dest_path = Path::new(&dest_file);
-            copy_file(dest_path, orig_path)
+            copy_file(dest_path, &orig_path)
         })
         .collect()
 }
