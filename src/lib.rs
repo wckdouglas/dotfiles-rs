@@ -2,7 +2,8 @@ pub mod cli;
 pub mod path;
 
 use cli::command;
-use git2::Repository;
+use git2::build::RepoBuilder;
+use git2::{Cred, FetchOptions, RemoteCallbacks, Repository};
 use log::info;
 use path::home_path;
 use rayon::prelude::*;
@@ -90,27 +91,66 @@ fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, S
 
 fn install(dotfile_list: Vec<String>, github_url: String) -> Result<Vec<u8>, String> {
     let home_dir = home_path()?;
-    let git_dotfiles_dir = format!("{}/dotfiles", home_dir);
+    let git_dotfiles_dir = format!("{}/dotfiles", &home_dir);
     let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
 
     let _repo = match git_dotfiles_path.exists() {
         true => Repository::open(&git_dotfiles_path)
             .or_else(|_| Err(format!("Folder not exists: {}", git_dotfiles_dir))),
-        _ => match Repository::clone(&github_url, &git_dotfiles_path) {
-            Ok(repo) => Ok(repo),
-            Err(_) => Err(format!("failed to clone: {}", github_url)),
-        },
+        _ => {
+            let repo = git_clone(&github_url, &git_dotfiles_dir);
+            info!("Clone complete");
+            repo
+        }
     }?;
     dotfile_list
         .into_par_iter()
         .map(|dotfile| {
-            let orig_file = format!("{}/{}", git_dotfiles_dir, dotfile);
+            let orig_file = format!("{}/{}", &git_dotfiles_dir, dotfile);
             let dest_file = format!("{}/{}", home_dir, dotfile);
             let orig_path = Path::new(&orig_file);
             let dest_path = Path::new(&dest_file);
             copy_file(dest_path, orig_path)
         })
         .collect()
+}
+
+fn git_clone(github_url: &String, git_dotfiles_dir: &String) -> Result<Repository, String> {
+    match github_url.starts_with("git@github.com") {
+        true => {
+            info!("Cloning {} into {}", github_url, git_dotfiles_dir);
+            let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
+            let home_dir = home_path()?;
+            let ssh_pub_key_fn = format!("{}/.ssh/id_rsa.pub", &home_dir);
+            let ssh_private_key_fn = format!("{}/.ssh/id_rsa", &home_dir);
+            let ssh_pub_key_file_path = Path::new(&ssh_pub_key_fn);
+            let ssh_private_key_file_path = Path::new(&ssh_private_key_fn);
+
+            let mut builder = RepoBuilder::new();
+            let mut callbacks = RemoteCallbacks::new();
+            let mut fetch_options = FetchOptions::new();
+
+            callbacks.credentials(|_, _, _| {
+                let credentials = Cred::ssh_key(
+                    "git",
+                    Some(ssh_pub_key_file_path),
+                    ssh_private_key_file_path,
+                    None,
+                )
+                .expect("Credential not found from ~/.ssh");
+                Ok(credentials)
+            });
+
+            fetch_options.remote_callbacks(callbacks);
+
+            builder.fetch_options(fetch_options);
+
+            builder
+                .clone(&github_url, git_dotfiles_path)
+                .or_else(|e| Err(e.to_string()))
+        },
+        _ => Err(String::from("We only support ssh-key cloning, which the github url should start with git@github.com prefix"))
+    }
 }
 
 /// reading the dotfile yaml
