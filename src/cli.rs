@@ -49,5 +49,6 @@ pub fn command() -> Result<ArgMatches, String> {
                         .required(false)
                 ),
         );
+
     Ok(cli.get_matches())
 }
