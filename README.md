@@ -1,5 +1,6 @@
 # dotfiles-rs
 
+[![CI](https://github.com/wckdouglas/dotfiles-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/wckdouglas/dotfiles-rs/actions/workflows/ci.yml)
 
 ## Installation
 
