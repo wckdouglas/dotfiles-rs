@@ -16,7 +16,7 @@ on:
       - 'main'
 
 jobs:
-  build_and_test-rust:
+  build-and-test-rust:
     name: Rust CI
     runs-on: ubuntu-latest
     steps:
