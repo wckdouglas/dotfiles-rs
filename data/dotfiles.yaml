@@ -1,3 +1,4 @@
+# should be relative to the home directory
 dotfiles:
   - .zshrc
   - .vimrc
