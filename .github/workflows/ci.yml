@@ -13,22 +13,22 @@ jobs:
     name: Rust CI
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
+          toolchain: stable 18 months ago
       
       - name: CI -- lint
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
+        uses: dtolnay/rust-toolchain@stable
+        run: |
+          cargo clippy
 
       - name: CI -- test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+        uses: dtolnay/rust-toolchain@stable
+        run: |
+          cargo test
       
       - name: CI -- format
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
+        uses: dtolnay/rust-toolchain@stable
+        run: |
+          cargo fmt
