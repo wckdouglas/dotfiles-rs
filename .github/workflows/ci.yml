@@ -19,16 +19,13 @@ jobs:
           toolchain: stable 18 months ago
       
       - name: CI -- lint
-        uses: dtolnay/rust-toolchain@stable
         run: |
           cargo clippy
 
       - name: CI -- test
-        uses: dtolnay/rust-toolchain@stable
         run: |
           cargo test
       
       - name: CI -- format
-        uses: dtolnay/rust-toolchain@stable
         run: |
           cargo fmt
