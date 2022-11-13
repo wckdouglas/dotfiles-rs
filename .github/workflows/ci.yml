@@ -18,6 +18,11 @@ jobs:
         with:
           toolchain: stable 18 months ago
       
+      - name: Get utils
+        run: |
+          rustup component add clippy
+          rustup component add rustfmt
+      
       - name: CI -- lint
         run: |
           cargo clippy
