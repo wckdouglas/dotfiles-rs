@@ -49,7 +49,7 @@ pub fn run() -> Result<u8, String> {
                 install(dotfile_list, github_url.to_string(), ssh_key_file)?;
                 Ok(0)
             }
-            _ => Err(String::from("Unsupported subcommand".to_string())),
+            _ => Err("Unsupported subcommand".to_string()),
         },
         _ => Err("No subcommand provided".to_string()),
     }
@@ -80,7 +80,7 @@ pub fn run() -> Result<u8, String> {
 /// ```
 pub fn check_file_exists(filename: String) -> Result<String, String> {
     let outfile_name = Path::new(&filename);
-    metadata(&outfile_name)
+    metadata(outfile_name)
         .or_else(|_| Err(format!("{} does not exist", &outfile_name.display())))?;
     Ok(filename)
 }
@@ -100,13 +100,12 @@ fn copy_file(dest_file: String, orig_file: String) -> Result<u8, String> {
     let dest_file_path = Path::new(&dest_file);
     // mkdir with parents
     let prefix = &dest_file_path.parent();
-    match prefix {
-        Some(prefix_path) => create_dir_all(prefix_path).map_err(|e| e.to_string())?,
-        _ => (),
-    };
+    if let Some(prefix_path) = prefix {
+        create_dir_all(prefix_path).map_err(|e| e.to_string())?
+    }
 
     // copy over the file
-    copy(source_file, &dest_file_path).map_err(|e| e.to_string())?;
+    copy(source_file, dest_file_path).map_err(|e| e.to_string())?;
     info!("Copied {} to {}", source_file_name, dest_file,);
     Ok(0)
 }
@@ -141,10 +140,10 @@ fn install(
     let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
 
     let _repo = match git_dotfiles_path.exists() {
-        true => Repository::open(&git_dotfiles_path)
-            .or_else(|_| Err(format!("Folder not exists: {}", git_dotfiles_dir))),
+        true => Repository::open(git_dotfiles_path)
+            .map_err(|_| format!("Folder not exists: {}", git_dotfiles_dir)),
         _ => {
-            let repo = git_clone(&github_url, &git_dotfiles_dir, ssh_key_file);
+            let repo = git_clone(github_url, &git_dotfiles_dir, ssh_key_file);
             info!("Clone complete");
             repo
         }
@@ -166,7 +165,7 @@ fn install(
 /// - `git_dorfiles_dir`: a directory name for cloning the repo locally
 /// - `ssh_private_key_fn`: ~/.ssh/id_rsa file, ~/.ssh/id_ecds (the ~/.ssh/id_ecds.pub should also exists!)
 fn git_clone(
-    github_url: &String,
+    github_url: String,
     git_dotfiles_dir: &String,
     ssh_private_key_fn: String,
 ) -> Result<Repository, String> {
@@ -204,7 +203,7 @@ fn git_clone(
 
             builder
                 .clone(&github_url, git_dotfiles_path)
-                .or_else(|e| Err(e.to_string()))
+                .map_err(|e| e.to_string())
         },
         _ => Err(String::from("We only support ssh-key cloning, which the github url should start with git@github.com prefix"))
     }
