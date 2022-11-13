@@ -18,6 +18,7 @@ struct DotFiles {
 }
 
 pub fn run() -> Result<u8, String> {
+    let home_dir = home_path()?;
     let command_args = command()?;
     let yaml_fn: &str = command_args
         .value_of::<&str>("dotfile_yaml")
@@ -41,7 +42,11 @@ pub fn run() -> Result<u8, String> {
             "install" => {
                 let github_url: &str =
                     sub_m.value_of::<&str>("url").ok_or("No git url provided")?;
-                install(dotfile_list, github_url.to_string())?;
+                let ssh_key_file: String = sub_m
+                    .value_of::<&str>("ssh_key")
+                    .unwrap_or(format!("{}/.ssh/id_rsa", &home_dir).as_str())
+                    .to_string();
+                install(dotfile_list, github_url.to_string(), ssh_key_file)?;
                 Ok(0)
             }
             _ => Err(String::from("Unsupported subcommand".to_string())),
@@ -89,7 +94,11 @@ fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, S
         .collect()
 }
 
-fn install(dotfile_list: Vec<String>, github_url: String) -> Result<Vec<u8>, String> {
+fn install(
+    dotfile_list: Vec<String>,
+    github_url: String,
+    ssh_key_file: String,
+) -> Result<Vec<u8>, String> {
     let home_dir = home_path()?;
     let git_dotfiles_dir = format!("{}/dotfiles", &home_dir);
     let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
@@ -98,7 +107,7 @@ fn install(dotfile_list: Vec<String>, github_url: String) -> Result<Vec<u8>, Str
         true => Repository::open(&git_dotfiles_path)
             .or_else(|_| Err(format!("Folder not exists: {}", git_dotfiles_dir))),
         _ => {
-            let repo = git_clone(&github_url, &git_dotfiles_dir);
+            let repo = git_clone(&github_url, &git_dotfiles_dir, ssh_key_file);
             info!("Clone complete");
             repo
         }
@@ -115,14 +124,16 @@ fn install(dotfile_list: Vec<String>, github_url: String) -> Result<Vec<u8>, Str
         .collect()
 }
 
-fn git_clone(github_url: &String, git_dotfiles_dir: &String) -> Result<Repository, String> {
+fn git_clone(
+    github_url: &String,
+    git_dotfiles_dir: &String,
+    ssh_private_key_fn: String,
+) -> Result<Repository, String> {
     match github_url.starts_with("git@github.com") {
         true => {
             info!("Cloning {} into {}", github_url, git_dotfiles_dir);
             let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
-            let home_dir = home_path()?;
-            let ssh_pub_key_fn = format!("{}/.ssh/id_rsa.pub", &home_dir);
-            let ssh_private_key_fn = format!("{}/.ssh/id_rsa", &home_dir);
+            let ssh_pub_key_fn = format!("{}.pub", &ssh_private_key_fn);
             let ssh_pub_key_file_path = file_to_path(ssh_pub_key_fn)?;
             let ssh_private_key_file_path = file_to_path(ssh_private_key_fn)?;
 

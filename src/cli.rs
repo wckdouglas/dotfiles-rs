@@ -39,6 +39,14 @@ pub fn command() -> Result<ArgMatches, String> {
                         .long("url")
                         .takes_value(true)
                         .required(true),
+                )
+                .arg(
+                    Arg::with_name("ssh_key")
+                        .help("The ssh key to use, the private key file, should have a .pub file in the same folder too (default: ~/.ssh/id_rsa)")
+                        .short('s')
+                        .long("ssh-key")
+                        .takes_value(true)
+                        .required(false)
                 ),
         );
     Ok(cli.get_matches())
