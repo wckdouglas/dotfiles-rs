@@ -45,9 +45,21 @@ $ tree -a -L 2 ../dotfiles
 └── .zshrc
 ```
 
+Create a github repo:
+
+```
+$ cd ../dotfiles
+$ git init -b main
+$ git add *
+$ git commit -am "Adding dot files"
+$ git remote add origin <REMOTE_URL>
+$ git push -u origin main
+```
+
+
 ### Install the settings on a new machine
 
-You will have to provide an url to the `dotfiles` repo that you created from the `save` step (e.g. `https://github.com/wckdouglas/dotfiles`)
+You will have to provide an url to the `dotfiles` repo (`<REMOTE_URL>`) that you created from the `save` step (e.g. `https://github.com/wckdouglas/dotfiles`)
 
 ```
 $ cd dotfiles-rs
