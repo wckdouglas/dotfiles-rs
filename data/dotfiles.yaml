@@ -2,5 +2,8 @@ dotfiles:
   - .zshrc
   - .vimrc
   - .gitconfig
+  - .gitignore_global
   - .ssh/config
+  - .config/alacritty/alacritty.yml
+  - .config/zellij/config.kdl
 
