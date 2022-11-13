@@ -55,28 +55,67 @@ pub fn run() -> Result<u8, String> {
     }
 }
 
-fn copy_file(dest_file_path: &Path, orig_file_path: &Path) -> Result<u8, String> {
-    metadata(orig_file_path)
-        .or_else(|_| Err(format!("{} does not exist", &orig_file_path.display())))?; //check whether the file exists
+/// Check whether a file exists
+///
+/// # Args:
+/// - `filename`: the file name to be checked
+///
+/// # Return
+/// - Result<&Path, String>: returning the input filename if exists
+///
+/// # Example
+///
+/// ```
+/// use std::path::Path;
+/// use dotfiles_rs::check_file_exists;
+///
+/// let filename = "blahblah".to_string();
+/// let result = check_file_exists(filename);
+/// assert!(result.is_err());
+///
+///
+/// let filename2 = "Cargo.toml".to_string();
+/// let result2 =  check_file_exists(filename2);
+/// assert_eq!(result2, Ok("Cargo.toml".to_string()));
+/// ```
+pub fn check_file_exists(filename: String) -> Result<String, String> {
+    let outfile_name = Path::new(&filename);
+    metadata(&outfile_name)
+        .or_else(|_| Err(format!("{} does not exist", &outfile_name.display())))?;
+    Ok(filename)
+}
+
+/// A function to copy file (essentially mkdir -p and cp)
+///
+/// # Args
+/// - `dest_file`: a file path pointing to the output file name
+/// - `orig_file`: the file path to the original file
+///
+/// # Return
+/// - Result<u8, String>: return code for the mkdir/copy operation
+fn copy_file(dest_file: String, orig_file: String) -> Result<u8, String> {
+    //check whether the source file exists
+    let source_file_name = check_file_exists(orig_file)?;
+    let source_file = Path::new(&source_file_name);
+    let dest_file_path = Path::new(&dest_file);
+    // mkdir with parents
     let prefix = &dest_file_path.parent();
     match prefix {
         Some(prefix_path) => create_dir_all(prefix_path).map_err(|e| e.to_string())?,
         _ => (),
     };
-    copy(orig_file_path, &dest_file_path).map_err(|e| e.to_string())?;
-    info!(
-        "Copied {} to {}",
-        &orig_file_path.display(),
-        &dest_file_path.display()
-    );
+
+    // copy over the file
+    copy(source_file, &dest_file_path).map_err(|e| e.to_string())?;
+    info!("Copied {} to {}", source_file_name, dest_file,);
     Ok(0)
 }
 
 /// Saving the provided list of dotfiles to the provided output folder
 ///
 /// # Arguments
-/// - *dotfile_list*: a list of filenames relative to home directory
-/// - *destination_dir*: the folder to store the copies
+/// - `dotfile_list`: a list of filenames relative to home directory
+/// - `destination_dir`: the folder to store the copies
 ///
 /// # Return
 /// - Result<Vec<u8>, String>: return code for each copy
@@ -87,9 +126,7 @@ fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, S
         .map(|dotfile| {
             let orig_file = format!("{}/{}", home_dir, dotfile);
             let dest_file = format!("{}/{}", destination_dir, dotfile);
-            let orig_path = file_to_path(orig_file)?;
-            let dest_path = Path::new(&dest_file);
-            copy_file(dest_path, &orig_path)
+            copy_file(dest_file, orig_file)
         })
         .collect()
 }
@@ -117,13 +154,17 @@ fn install(
         .map(|dotfile| {
             let orig_file = format!("{}/{}", &git_dotfiles_dir, dotfile);
             let dest_file = format!("{}/{}", home_dir, dotfile);
-            let orig_path = Path::new(&orig_file);
-            let dest_path = Path::new(&dest_file);
-            copy_file(dest_path, orig_path)
+            copy_file(dest_file, orig_file)
         })
         .collect()
 }
 
+/// Cloning a github repo with a given ssh key file
+///
+/// # Args
+/// - `github_url`: a git repo url from github starting with git@github.com
+/// - `git_dorfiles_dir`: a directory name for cloning the repo locally
+/// - `ssh_private_key_fn`: ~/.ssh/id_rsa file, ~/.ssh/id_ecds (the ~/.ssh/id_ecds.pub should also exists!)
 fn git_clone(
     github_url: &String,
     git_dotfiles_dir: &String,
@@ -133,10 +174,16 @@ fn git_clone(
         true => {
             info!("Cloning {} into {}", github_url, git_dotfiles_dir);
             let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
-            let ssh_pub_key_fn = format!("{}.pub", &ssh_private_key_fn);
-            let ssh_pub_key_file_path = file_to_path(ssh_pub_key_fn)?;
-            let ssh_private_key_file_path = file_to_path(ssh_private_key_fn)?;
 
+            // check file
+            let ssh_pub_key_fn = check_file_exists(format!("{}.pub", &ssh_private_key_fn))?;
+            let ssh_private_key_fn_checked = check_file_exists(ssh_private_key_fn)?;
+
+            // make them to pathbuf
+            let ssh_pub_key_file_path = file_to_path(ssh_pub_key_fn)?;
+            let ssh_private_key_file_path = file_to_path(ssh_private_key_fn_checked)?;
+
+            // cloning the repo
             let mut builder = RepoBuilder::new();
             let mut callbacks = RemoteCallbacks::new();
             let mut fetch_options = FetchOptions::new();
@@ -170,7 +217,16 @@ fn git_clone(
 ///
 /// # Return
 /// - list of dotfiles to be copied
-fn read_yaml(yaml_fn: &str) -> Result<Vec<String>, String> {
+///
+/// # Example
+///
+/// ```
+/// use dotfiles_rs::read_yaml;
+///
+/// let dotfile_list = read_yaml("data/dotfiles.yaml").unwrap();
+/// assert_eq!(dotfile_list.len(), 7);
+/// ```
+pub fn read_yaml(yaml_fn: &str) -> Result<Vec<String>, String> {
     let f = std::fs::File::open(yaml_fn).map_err(|e| e.to_string())?;
     let data: DotFiles = serde_yaml::from_reader(f).map_err(|e| e.to_string())?;
     Ok(data.dotfiles)
