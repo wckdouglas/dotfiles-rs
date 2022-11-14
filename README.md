@@ -24,14 +24,15 @@ We can use the `save` subcommand:
 ```
 $ cd dotfiles-rs
 $ dotfiles-rs --dotfile-yaml data/dotfiles.yaml save --dest-dir ../dotfiles
-[2022-11-13T15:12:50Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.gitconfig to ../dotfiles/.gitconfig
-[2022-11-13T15:12:50Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.zshrc to ../dotfiles/.zshrc
-[2022-11-13T15:12:50Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.vimrc to ../dotfiles/.vimrc
-[2022-11-13T15:12:50Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.gitignore_global to ../dotfiles/.gitignore_global
-[2022-11-13T15:12:50Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.ssh/config to ../dotfiles/.ssh/config
-[2022-11-13T15:12:50Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.config/zellij/config.kdl to ../dotfiles/.config/zellij/config.kdl
-[2022-11-13T15:12:50Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.config/alacritty/alacritty.yml to ../dotfiles/.config/alacritty/alacritty.yml
-[2022-11-13T15:12:50Z INFO  dotfiles_rs] You can now go to ../dotfiles and create a github repo!
+[2022-11-14T04:14:17Z INFO  dotfiles_rs::readme_template] Written ../dotfiles/README.md
+[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.zshrc to ../dotfiles/.zshrc
+[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.config/alacritty/alacritty.yml to ../dotfiles/.config/alacritty/alacritty.yml
+[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.config/zellij/config.kdl to ../dotfiles/.config/zellij/config.kdl
+[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.gitconfig to ../dotfiles/.gitconfig
+[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.gitignore_global to ../dotfiles/.gitignore_global
+[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.ssh/config to ../dotfiles/.ssh/config
+[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.vimrc to ../dotfiles/.vimrc
+[2022-11-14T04:14:17Z INFO  dotfiles_rs] You can now go to ../dotfiles and create a github repo!
 ```
 
 This creates a new folder `../dotfiles`, and it can be versione-controlled by `git`:
@@ -47,7 +48,8 @@ $ tree -a -L 2 ../dotfiles
 ├── .ssh
 │   └── config
 ├── .vimrc
-└── .zshrc
+├── .zshrc
+└── README.md
 ```
 
 Create a github repo:
