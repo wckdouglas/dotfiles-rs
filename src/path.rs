@@ -40,6 +40,7 @@ pub fn home_path() -> Result<String, String> {
 ///
 /// ```
 /// use dotfiles_rs::path::file_to_path;
+/// use std::path::Path;
 ///
 /// let filename = "blahblah".to_string();
 /// let result1 = file_to_path(&filename, true);
@@ -48,6 +49,7 @@ pub fn home_path() -> Result<String, String> {
 /// let filename2 = "blahblah".to_string();
 /// let result2 = file_to_path(&filename2, false);
 /// assert!(result2.is_ok());
+/// assert_eq!(result2.unwrap(), Path::new("blahblah").to_path_buf());
 /// ```
 pub fn file_to_path(filename: &String, check: bool) -> Result<PathBuf, String> {
     let file_path = Path::new(&filename);
