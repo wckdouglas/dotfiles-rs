@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/wckdouglas/dotfiles-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/wckdouglas/dotfiles-rs/actions/workflows/ci.yml)
 
-This is a simple dot files manager for syncing dot files across machines.
+This is a simple dot files manager for backing up and syncing dot files across machines.
 
 ## Installation
 
