@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/wckdouglas/dotfiles-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/wckdouglas/dotfiles-rs/actions/workflows/ci.yml)
 
-This is a simple dot files manager for backing up and syncing dot files across machines.
+This is a simple dot files manager for syncing dot files across machines.
 
 ## Installation
 
@@ -40,12 +40,12 @@ This creates a new folder `../dotfiles`, and it can be versione-controlled by `g
 $ tree -a -L 2 ../dotfiles
 ../dotfiles
 ├── .config
-│   ├── alacritty
-│   └── zellij
+│   ├── alacritty
+│   └── zellij
 ├── .gitconfig
 ├── .gitignore_global
 ├── .ssh
-│   └── config
+│   └── config
 ├── .vimrc
 └── .zshrc
 ```

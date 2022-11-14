@@ -1,5 +1,6 @@
 pub mod cli;
 pub mod path;
+pub mod readme_template;
 
 use cli::command;
 use git2::build::RepoBuilder;
@@ -7,6 +8,7 @@ use git2::{Cred, FetchOptions, RemoteCallbacks, Repository};
 use log::info;
 use path::{file_to_path, home_path};
 use rayon::prelude::*;
+use readme_template::write_template_readme;
 use serde::{Deserialize, Serialize};
 use std::fs::{copy, create_dir_all, metadata};
 use std::path::Path;
@@ -120,6 +122,7 @@ fn copy_file(dest_file: String, orig_file: String) -> Result<u8, String> {
 /// - Result<Vec<u8>, String>: return code for each copy
 fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, String> {
     let home_dir = home_path()?;
+    write_template_readme(format!("{}/README.md", &destination_dir))?;
     dotfile_list
         .into_par_iter()
         .map(|dotfile| {
