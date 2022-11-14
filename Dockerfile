@@ -9,6 +9,7 @@ RUN cargo install --path .
 FROM debian:bookworm-slim as exec
 RUN apt-get update &&  \
     rm -rf /var/lib/apt/lists/* && \
-    apt install openssl
+    apt-get install openssl
+RUN /usr/local/cargo/bin/dotfiles-rs -h
 COPY --from=build /usr/local/cargo/bin/dotfiles-rs /usr/local/bin/dotfiles-rs
 ENTRYPOINT ["/usr/local/bin/dotfiles-rs"]
