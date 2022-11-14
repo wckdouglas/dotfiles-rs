@@ -15,7 +15,7 @@ $ cargo install --path .
 
 ## Usage 
 
-The dot files (i.e. config files) to be managed are defined in a yaml file (e.g. `data/dot files.yaml`)
+The dot files (i.e. config files) to be managed are defined in a yaml file (e.g. `data/dotfiles.yaml`).
 
 ### Saving the current settings
 
