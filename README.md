@@ -87,3 +87,9 @@ $ dotfiles-rs --dotfile-yaml data/dotfiles.yaml install --url https://github.com
 ```
 ERROR: You're using an RSA key with SHA-1, which is no longer allowed. Please use a newer client or a different key type.
 ```
+
+# Docker 
+
+```
+docker pull ghcr.io/wckdouglas/dotfiles-rs:main
+```
