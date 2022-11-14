@@ -2,6 +2,17 @@ use dirs::home_dir;
 use std::path::{Path, PathBuf};
 use std::string::String;
 
+/// Getting home full path (i.e. ~ in unix)
+///
+/// # Example
+///
+/// ```
+/// use dotfiles_rs::path::home_path;
+/// let home = home_path();
+/// assert!(home.is_ok());
+///
+/// println!("{}", home.unwrap());
+/// ```
 pub fn home_path() -> Result<String, String> {
     let home = home_dir();
     match home {

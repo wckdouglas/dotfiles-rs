@@ -3,7 +3,8 @@ use dotfiles_rs::path::home_path;
 use dotfiles_rs::{install, read_yaml, save};
 use log::info;
 
-pub fn run() -> Result<u8, String> {
+/// Wrapper function to run the workflow
+fn run() -> Result<u8, String> {
     let home_dir = home_path()?;
     let command_args = command()?;
     let yaml_fn: &str = command_args

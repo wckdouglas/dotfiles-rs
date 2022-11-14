@@ -13,8 +13,10 @@ use std::fs::{copy, create_dir_all};
 use std::path::Path;
 use std::string::String;
 
+/// Dotfile validation schema
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct DotFiles {
+    // a list of dotfile file names
     dotfiles: Vec<String>,
 }
 
