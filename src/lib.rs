@@ -2,7 +2,6 @@ pub mod cli;
 pub mod path;
 pub mod readme_template;
 
-use cli::command;
 use git2::build::RepoBuilder;
 use git2::{Cred, FetchOptions, RemoteCallbacks, Repository};
 use log::info;
@@ -17,44 +16,6 @@ use std::string::String;
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct DotFiles {
     dotfiles: Vec<String>,
-}
-
-pub fn run() -> Result<u8, String> {
-    let home_dir = home_path()?;
-    let command_args = command()?;
-    let yaml_fn: &str = command_args
-        .value_of::<&str>("dotfile_yaml")
-        .ok_or("Cannot find the provided dotfile yaml file")?;
-
-    let dotfile_list: Vec<String> = read_yaml(yaml_fn)?;
-
-    match command_args.subcommand() {
-        Some((subcommand, sub_m)) => match subcommand {
-            "save" => {
-                let destination_dir: &str = sub_m
-                    .value_of::<&str>("dest_dir")
-                    .ok_or("No dest-dir provided")?;
-                save(dotfile_list, destination_dir.to_string())?;
-                info!(
-                    "You can now go to {} and create a github repo!",
-                    destination_dir
-                );
-                Ok(0)
-            }
-            "install" => {
-                let github_url: &str =
-                    sub_m.value_of::<&str>("url").ok_or("No git url provided")?;
-                let ssh_key_file: String = sub_m
-                    .value_of::<&str>("ssh_key")
-                    .unwrap_or(format!("{}/.ssh/id_rsa", &home_dir).as_str())
-                    .to_string();
-                install(dotfile_list, github_url.to_string(), ssh_key_file)?;
-                Ok(0)
-            }
-            _ => Err("Unsupported subcommand".to_string()),
-        },
-        _ => Err("No subcommand provided".to_string()),
-    }
 }
 
 /// A function to copy file (essentially mkdir -p and cp)
@@ -89,7 +50,7 @@ fn copy_file(dest_file: String, orig_file: String) -> Result<u8, String> {
 ///
 /// # Return
 /// - Result<Vec<u8>, String>: return code for each copy
-fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, String> {
+pub fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, String> {
     let home_dir = home_path()?;
     write_template_readme(format!("{}/README.md", &destination_dir))?;
     dotfile_list
@@ -102,7 +63,13 @@ fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, S
         .collect()
 }
 
-fn install(
+/// Installing the dotfiles from a github repo
+///
+/// # Args
+/// - `dotfile_list`: a list of dot files to be installed from the github repo
+/// - `github_url`: a valid github url for the repo (e.g. git@github.com:wckdouglas/dotfiles.git, must starts with git@github.com)
+/// - `ssh_key_file`: a ssh key file for github authentication (e.g. ~/.ssh/id_rsa)
+pub fn install(
     dotfile_list: Vec<String>,
     github_url: String,
     ssh_key_file: String,
