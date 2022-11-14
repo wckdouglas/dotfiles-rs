@@ -11,6 +11,6 @@ RUN apt-get update &&  \
     apt-get upgrade -y && \
     apt-get install -y openssl && \
     rm -rf /var/lib/apt/lists/* 
-RUN /usr/local/cargo/bin/dotfiles-rs -h
 COPY --from=build /usr/local/cargo/bin/dotfiles-rs /usr/local/bin/dotfiles-rs
+RUN /usr/local/bin/dotfiles-rs -h
 ENTRYPOINT ["/usr/local/bin/dotfiles-rs"]
