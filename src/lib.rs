@@ -10,7 +10,7 @@ use path::{file_to_path, home_path};
 use rayon::prelude::*;
 use readme_template::write_template_readme;
 use serde::{Deserialize, Serialize};
-use std::fs::{copy, create_dir_all, metadata};
+use std::fs::{copy, create_dir_all};
 use std::path::Path;
 use std::string::String;
 
@@ -57,36 +57,6 @@ pub fn run() -> Result<u8, String> {
     }
 }
 
-/// Check whether a file exists
-///
-/// # Args:
-/// - `filename`: the file name to be checked
-///
-/// # Return
-/// - Result<&Path, String>: returning the input filename if exists
-///
-/// # Example
-///
-/// ```
-/// use std::path::Path;
-/// use dotfiles_rs::check_file_exists;
-///
-/// let filename = "blahblah".to_string();
-/// let result = check_file_exists(filename);
-/// assert!(result.is_err());
-///
-///
-/// let filename2 = "Cargo.toml".to_string();
-/// let result2 =  check_file_exists(filename2);
-/// assert_eq!(result2, Ok("Cargo.toml".to_string()));
-/// ```
-pub fn check_file_exists(filename: String) -> Result<String, String> {
-    let outfile_name = Path::new(&filename);
-    metadata(outfile_name)
-        .or_else(|_| Err(format!("{} does not exist", &outfile_name.display())))?;
-    Ok(filename)
-}
-
 /// A function to copy file (essentially mkdir -p and cp)
 ///
 /// # Args
@@ -97,18 +67,17 @@ pub fn check_file_exists(filename: String) -> Result<String, String> {
 /// - Result<u8, String>: return code for the mkdir/copy operation
 fn copy_file(dest_file: String, orig_file: String) -> Result<u8, String> {
     //check whether the source file exists
-    let source_file_name = check_file_exists(orig_file)?;
-    let source_file = Path::new(&source_file_name);
-    let dest_file_path = Path::new(&dest_file);
+    let source_file_pathbuf = file_to_path(&orig_file, true)?;
+    let dest_file_pathbuf = file_to_path(&dest_file, false)?;
     // mkdir with parents
-    let prefix = &dest_file_path.parent();
+    let prefix = &dest_file_pathbuf.parent();
     if let Some(prefix_path) = prefix {
         create_dir_all(prefix_path).map_err(|e| e.to_string())?
     }
 
     // copy over the file
-    copy(source_file, dest_file_path).map_err(|e| e.to_string())?;
-    info!("Copied {} to {}", source_file_name, dest_file,);
+    copy(source_file_pathbuf, dest_file_pathbuf).map_err(|e| e.to_string())?;
+    info!("Copied {} to {}", orig_file, dest_file,);
     Ok(0)
 }
 
@@ -176,14 +145,10 @@ fn git_clone(
         true => {
             info!("Cloning {} into {}", github_url, git_dotfiles_dir);
             let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
-
-            // check file
-            let ssh_pub_key_fn = check_file_exists(format!("{}.pub", &ssh_private_key_fn))?;
-            let ssh_private_key_fn_checked = check_file_exists(ssh_private_key_fn)?;
-
             // make them to pathbuf
-            let ssh_pub_key_file_path = file_to_path(ssh_pub_key_fn)?;
-            let ssh_private_key_file_path = file_to_path(ssh_private_key_fn_checked)?;
+            let ssh_pub_key_fn = format!("{}.pub", &ssh_private_key_fn);
+            let ssh_pub_key_file_path = file_to_path(&ssh_pub_key_fn, true)?;
+            let ssh_private_key_file_path = file_to_path(&ssh_private_key_fn, true)?;
 
             // cloning the repo
             let mut builder = RepoBuilder::new();

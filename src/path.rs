@@ -16,10 +16,37 @@ pub fn home_path() -> Result<String, String> {
     }
 }
 
-pub fn file_to_path(filename: String) -> Result<PathBuf, String> {
+/// Convert string type filename to pathbuf (and perform check)
+///
+/// # Args
+/// - `filename`: the filename for check and convert
+/// - `check`: whether we whould check the existence of the file
+///
+/// # Return
+/// - file path of the input filename
+///
+/// # Example
+///
+/// ```
+/// use dotfiles_rs::path::file_to_path;
+///
+/// let filename = "blahblah".to_string();
+/// let result1 = file_to_path(&filename, true);
+/// assert!(result1.is_err());
+///
+/// let filename2 = "blahblah".to_string();
+/// let result2 = file_to_path(&filename2, false);
+/// assert!(result2.is_ok());
+/// ```
+pub fn file_to_path(filename: &String, check: bool) -> Result<PathBuf, String> {
     let file_path = Path::new(&filename);
-    match file_path.is_file() {
-        true => Ok(file_path.to_path_buf()),
-        _ => Err(format!("File not found: {}", filename)),
+
+    if check {
+        match file_path.is_file() {
+            true => Ok(file_path.to_path_buf()),
+            _ => Err(format!("File not found: {}", filename)),
+        }
+    } else {
+        Ok(file_path.to_path_buf())
     }
 }
