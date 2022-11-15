@@ -1,11 +1,11 @@
 [package]
 name = "dotfiles-rs"
+author = "wckdouglas"
 version = "0.1.0"
 edition = "2021"
 description = "A simple dot files manager for syncing dot files across machines."
 license = " Apache-2.0"
 license-file = "LICENSE"
-authors = "wckdouglas"
 repository = "https://github.com/wckdouglas/dotfiles-rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
