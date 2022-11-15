@@ -64,13 +64,13 @@ $ git push -u origin main
 ```
 
 
-### Install the settings on a new machine
+### Applying the settings on a new machine
 
 You will have to provide an url to the `dotfiles` repo (`<REMOTE_URL>`) that you created from the `save` step (e.g. `https://github.com/wckdouglas/dotfiles`)
 
 ```
 $ cd dotfiles-rs
-$ dotfiles-rs --dotfile-yaml data/dotfiles.yaml install --url https://github.com/wckdouglas/dotfiles  --ssh-key ~/.ssh/id_ecdsa
+$ dotfiles-rs --dotfile-yaml data/dotfiles.yaml apply --url https://github.com/wckdouglas/dotfiles  --ssh-key ~/.ssh/id_ecdsa
 [2022-11-13T15:51:19Z INFO  dotfiles_rs] Cloning git@github.com:wckdouglas/dotfiles.git into /Users/wckdouglas/dotfiles
 [2022-11-13T15:51:20Z INFO  dotfiles_rs] Clone complete
 [2022-11-13T15:51:20Z INFO  dotfiles_rs] Copied /Users/wckdouglas/dotfiles/.ssh/config to /Users/wckdouglas/.ssh/config
@@ -91,5 +91,6 @@ ERROR: You're using an RSA key with SHA-1, which is no longer allowed. Please us
 # Docker 
 
 ```
-docker pull ghcr.io/wckdouglas/dotfiles-rs:main
+$ docker pull ghcr.io/wckdouglas/dotfiles-rs:main
+$ docker run  ghcr.io/wckdouglas/dotfiles-rs:main
 ```

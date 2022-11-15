@@ -30,8 +30,8 @@ pub fn command() -> Result<ArgMatches, String> {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("install")
-                .about("Installing dotfiles from a github url")
+            SubCommand::with_name("apply")
+                .about("Applying dotfiles from a github url")
                 .arg(
                     Arg::with_name("url")
                         .help("The github url")

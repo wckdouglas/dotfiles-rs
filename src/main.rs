@@ -26,7 +26,7 @@ fn run() -> Result<u8, String> {
                 );
                 Ok(0)
             }
-            "install" => {
+            "apply" => {
                 let github_url: &str =
                     sub_m.value_of::<&str>("url").ok_or("No git url provided")?;
                 let ssh_key_file: String = sub_m

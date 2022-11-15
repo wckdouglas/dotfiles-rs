@@ -1,4 +1,4 @@
-FROM --platform=linux/x86_64 rust:1.65.0-slim-buster as builder
+FROM --platform=linux/x86_64/v8 rust:1.65.0-slim-buster as builder
 RUN apt-get update \
     && apt-get install -y libssl-dev pkg-config \
     && rm -rf /var/lib/apt/lists/* 
@@ -8,7 +8,7 @@ COPY . /opt/dotfiles-rs/
 WORKDIR /opt/dotfiles-rs
 RUN cargo install --path .
 
-FROM --platform=linux/x86_64 debian:buster-slim as exec
+FROM --platform=linux/x86_64/v8 debian:buster-slim as exec
 RUN apt-get update \
     && apt-get install -y libssl-dev pkg-config \
     && rm -rf /var/lib/apt/lists/* 
