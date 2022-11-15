@@ -10,7 +10,7 @@ cargo-yaml = "3.0.0"
 clap = "3.2.22"
 dirs = "4.0.0"
 env_logger = "0.9.1"
-git2 = { git = "https://github.com/rust-lang/git2-rs" }
+git2 = "0.14.0" #{ git = "https://github.com/rust-lang/git2-rs" }
 log = "0.4.17"
 rayon = "1.5.3"
 serde = { version = "1.0.145", features = ["derive"] }
