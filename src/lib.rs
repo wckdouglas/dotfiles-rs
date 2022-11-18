@@ -9,8 +9,8 @@ use path::{file_to_path, home_path};
 use rayon::prelude::*;
 use readme_template::write_template_readme;
 use serde::{Deserialize, Serialize};
-use std::fs::{copy, create_dir_all};
-use std::path::Path;
+use std::fs::{copy, create_dir_all, File};
+use std::path::{Path, PathBuf};
 use std::string::String;
 
 /// Dotfile validation schema
@@ -30,10 +30,10 @@ struct DotFiles {
 /// - Result<u8, String>: return code for the mkdir/copy operation
 fn copy_file(dest_file: String, orig_file: String) -> Result<u8, String> {
     //check whether the source file exists
-    let source_file_pathbuf = file_to_path(&orig_file, true)?;
-    let dest_file_pathbuf = file_to_path(&dest_file, false)?;
+    let source_file_pathbuf: PathBuf = file_to_path(&orig_file, true)?;
+    let dest_file_pathbuf: PathBuf = file_to_path(&dest_file, false)?;
     // mkdir with parents
-    let prefix = &dest_file_pathbuf.parent();
+    let prefix: &Option<&Path> = &dest_file_pathbuf.parent();
     if let Some(prefix_path) = prefix {
         create_dir_all(prefix_path).map_err(|e| e.to_string())?
     }
@@ -53,13 +53,13 @@ fn copy_file(dest_file: String, orig_file: String) -> Result<u8, String> {
 /// # Return
 /// - Result<Vec<u8>, String>: return code for each copy
 pub fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, String> {
-    let home_dir = home_path()?;
+    let home_dir: String = home_path()?;
     write_template_readme(format!("{}/README.md", &destination_dir))?;
     dotfile_list
         .into_par_iter()
         .map(|dotfile| {
-            let orig_file = format!("{}/{}", home_dir, dotfile);
-            let dest_file = format!("{}/{}", destination_dir, dotfile);
+            let orig_file: String = format!("{}/{}", home_dir, dotfile);
+            let dest_file: String = format!("{}/{}", destination_dir, dotfile);
             copy_file(dest_file, orig_file)
         })
         .collect()
@@ -76,15 +76,16 @@ pub fn install(
     github_url: String,
     ssh_key_file: String,
 ) -> Result<Vec<u8>, String> {
-    let home_dir = home_path()?;
-    let git_dotfiles_dir = format!("{}/dotfiles", &home_dir);
+    let home_dir: String = home_path()?;
+    let git_dotfiles_dir: String = format!("{}/dotfiles", &home_dir);
     let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
 
     let _repo = match git_dotfiles_path.exists() {
         true => Repository::open(git_dotfiles_path)
             .map_err(|_| format!("Folder not exists: {}", git_dotfiles_dir)),
         _ => {
-            let repo = git_clone(github_url, &git_dotfiles_dir, ssh_key_file);
+            let repo: Result<Repository, String> =
+                git_clone(github_url, &git_dotfiles_dir, ssh_key_file);
             info!("Clone complete");
             repo
         }
@@ -92,8 +93,8 @@ pub fn install(
     dotfile_list
         .into_par_iter()
         .map(|dotfile| {
-            let orig_file = format!("{}/{}", &git_dotfiles_dir, dotfile);
-            let dest_file = format!("{}/{}", home_dir, dotfile);
+            let orig_file: String = format!("{}/{}", &git_dotfiles_dir, dotfile);
+            let dest_file: String = format!("{}/{}", home_dir, dotfile);
             copy_file(dest_file, orig_file)
         })
         .collect()
@@ -115,17 +116,17 @@ fn git_clone(
             info!("Cloning {} into {}", github_url, git_dotfiles_dir);
             let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
             // make them to pathbuf
-            let ssh_pub_key_fn = format!("{}.pub", &ssh_private_key_fn);
-            let ssh_pub_key_file_path = file_to_path(&ssh_pub_key_fn, true)?;
-            let ssh_private_key_file_path = file_to_path(&ssh_private_key_fn, true)?;
+            let ssh_pub_key_fn: String = format!("{}.pub", &ssh_private_key_fn);
+            let ssh_pub_key_file_path: PathBuf = file_to_path(&ssh_pub_key_fn, true)?;
+            let ssh_private_key_file_path: PathBuf = file_to_path(&ssh_private_key_fn, true)?;
 
             // cloning the repo
-            let mut builder = RepoBuilder::new();
-            let mut callbacks = RemoteCallbacks::new();
-            let mut fetch_options = FetchOptions::new();
+            let mut builder: RepoBuilder = RepoBuilder::new();
+            let mut callbacks: RemoteCallbacks = RemoteCallbacks::new();
+            let mut fetch_options: FetchOptions = FetchOptions::new();
 
             callbacks.credentials(|_, _, _| {
-                let credentials = Cred::ssh_key(
+                let credentials: Cred = Cred::ssh_key(
                     "git",
                     Some(&ssh_pub_key_file_path),
                     &ssh_private_key_file_path,
@@ -163,7 +164,7 @@ fn git_clone(
 /// assert_eq!(dotfile_list.len(), 7);
 /// ```
 pub fn read_yaml(yaml_fn: &str) -> Result<Vec<String>, String> {
-    let f = std::fs::File::open(yaml_fn).map_err(|e| e.to_string())?;
+    let f: File = File::open(yaml_fn).map_err(|e| e.to_string())?;
     let data: DotFiles = serde_yaml::from_reader(f).map_err(|e| e.to_string())?;
     Ok(data.dotfiles)
 }
