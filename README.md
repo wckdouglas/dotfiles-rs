@@ -1,6 +1,8 @@
 # dotfiles-rs
 
 [![CI](https://github.com/wckdouglas/dotfiles-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/wckdouglas/dotfiles-rs/actions/workflows/ci.yml)
+[![crate](https://img.shields.io/crates/v/dotfiles-rs.svg)](https://crates.io/crates/dotfiles-rs)
+
 
 This is a simple dot files manager for syncing dot files across machines.
 
