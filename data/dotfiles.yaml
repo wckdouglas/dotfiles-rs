@@ -1,5 +1,6 @@
 # should be relative to the home directory
 dotfiles:
+  - .wezterm.lua
   - .zshrc
   - .vimrc
   - .gitconfig

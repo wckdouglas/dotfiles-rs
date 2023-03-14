@@ -1,4 +1,5 @@
 use dirs::home_dir;
+use std::ffi::OsString;
 use std::path::{Path, PathBuf};
 use std::string::String;
 
@@ -14,10 +15,10 @@ use std::string::String;
 /// println!("{}", home.unwrap());
 /// ```
 pub fn home_path() -> Result<String, String> {
-    let home = home_dir();
+    let home: Option<PathBuf> = home_dir();
     match home {
         Some(dir) => {
-            let home_dir = dir.into_os_string().into_string();
+            let home_dir: Result<String, OsString> = dir.into_os_string().into_string();
             match home_dir {
                 Ok(home_dir_str) => Ok(home_dir_str),
                 _ => Err(String::from("Cannot parse home directory")),
@@ -52,7 +53,7 @@ pub fn home_path() -> Result<String, String> {
 /// assert_eq!(result2.unwrap(), Path::new("blahblah").to_path_buf());
 /// ```
 pub fn file_to_path(filename: &String, check: bool) -> Result<PathBuf, String> {
-    let file_path = Path::new(&filename);
+    let file_path: &Path = Path::new(&filename);
 
     if check {
         match file_path.is_file() {

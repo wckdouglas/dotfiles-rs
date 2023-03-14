@@ -96,3 +96,29 @@ ERROR: You're using an RSA key with SHA-1, which is no longer allowed. Please us
 $ docker pull ghcr.io/wckdouglas/dotfiles-rs:main
 $ docker run  ghcr.io/wckdouglas/dotfiles-rs:main
 ```
+
+# Debug #
+
+On m1 mac, if you see an error like this:
+
+```
+$ cargo run --
+... skipping some compilation messages ...
+ = note: Undefined symbols for architecture arm64:
+            "_iconv", referenced from:
+                _git_fs_path_iconv in liblibgit2_sys-2da99193d83f7067.rlib(fs_path.o)
+               (maybe you meant: _git_fs_path_iconv_clear, _git_fs_path_iconv_init_precompose , _git_fs_path_iconv )
+            "_iconv_close", referenced from:
+                _git_fs_path_iconv_clear in liblibgit2_sys-2da99193d83f7067.rlib(fs_path.o)
+            "_iconv_open", referenced from:
+                _git_fs_path_iconv_init_precompose in liblibgit2_sys-2da99193d83f7067.rlib(fs_path.o)
+          ld: symbol(s) not found for architecture arm64
+          clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+```
+
+then, doing this may work:
+
+```
+$ LIBRARY_PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk/usr/include cargo install --path .
+```

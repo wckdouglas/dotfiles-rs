@@ -5,7 +5,7 @@ const PROGRAM_DESC: &str = "Convenient utils for saving and install dotfiles";
 const PROGRAM_NAME: &str = "dotfiles";
 
 pub fn command() -> Result<ArgMatches, String> {
-    let cli = Command::new(PROGRAM_NAME)
+    let cli: Command = Command::new(PROGRAM_NAME)
         .version("0.1.0")
         .author("Douglas Wu <wckdouglas@gmail.com>")
         .about(PROGRAM_DESC)
