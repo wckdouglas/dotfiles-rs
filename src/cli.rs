@@ -31,8 +31,7 @@ pub fn command() -> Result<ArgMatches, String> {
                 .arg(
                     Arg::with_name("dry")
                         .help("Dry run")
-                        .short('d')
-                        .long("url")
+                        .long("dry-run")
                         .takes_value(false)
                         .required(false)
                         .action(ArgAction::SetTrue),
@@ -60,8 +59,7 @@ pub fn command() -> Result<ArgMatches, String> {
                 .arg(
                     Arg::with_name("dry")
                         .help("Dry run")
-                        .short('d')
-                        .long("url")
+                        .long("dry-run")
                         .takes_value(false)
                         .required(false)
                         .action(ArgAction::SetTrue)
