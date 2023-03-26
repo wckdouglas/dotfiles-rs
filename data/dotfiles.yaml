@@ -8,4 +8,4 @@ dotfiles:
   - .ssh/config
   - .config/alacritty/alacritty.yml
   - .config/zellij/config.kdl
-
+  - .config/nvim/init.lua

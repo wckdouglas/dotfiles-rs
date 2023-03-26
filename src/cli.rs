@@ -1,4 +1,4 @@
-use clap::{Arg, ArgMatches, Command, SubCommand};
+use clap::{Arg, ArgAction, ArgMatches, Command, SubCommand};
 use std::string::String;
 
 const PROGRAM_DESC: &str = "Convenient utils for saving and install dotfiles";
@@ -27,7 +27,16 @@ pub fn command() -> Result<ArgMatches, String> {
                         .long("dest-dir")
                         .takes_value(true)
                         .required(true),
-                ),
+                )
+                .arg(
+                    Arg::with_name("dry")
+                        .help("Dry run")
+                        .short('d')
+                        .long("url")
+                        .takes_value(false)
+                        .required(false)
+                        .action(ArgAction::SetTrue),
+                    )
         )
         .subcommand(
             SubCommand::with_name("apply")
@@ -47,6 +56,15 @@ pub fn command() -> Result<ArgMatches, String> {
                         .long("ssh-key")
                         .takes_value(true)
                         .required(false)
+                )
+                .arg(
+                    Arg::with_name("dry")
+                        .help("Dry run")
+                        .short('d')
+                        .long("url")
+                        .takes_value(false)
+                        .required(false)
+                        .action(ArgAction::SetTrue)
                 ),
         );
 

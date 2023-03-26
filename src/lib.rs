@@ -28,7 +28,7 @@ struct DotFiles {
 ///
 /// # Return
 /// - Result<u8, String>: return code for the mkdir/copy operation
-fn copy_file(dest_file: String, orig_file: String) -> Result<u8, String> {
+fn copy_file(dest_file: String, orig_file: String, dry_run: bool) -> Result<u8, String> {
     //check whether the source file exists
     let source_file_pathbuf: PathBuf = file_to_path(&orig_file, true)?;
     let dest_file_pathbuf: PathBuf = file_to_path(&dest_file, false)?;
@@ -39,7 +39,9 @@ fn copy_file(dest_file: String, orig_file: String) -> Result<u8, String> {
     }
 
     // copy over the file
-    copy(source_file_pathbuf, dest_file_pathbuf).map_err(|e| e.to_string())?;
+    if !dry_run {
+        copy(source_file_pathbuf, dest_file_pathbuf).map_err(|e| e.to_string())?;
+    }
     info!("Copied {} to {}", orig_file, dest_file,);
     Ok(0)
 }
@@ -52,7 +54,11 @@ fn copy_file(dest_file: String, orig_file: String) -> Result<u8, String> {
 ///
 /// # Return
 /// - Result<Vec<u8>, String>: return code for each copy
-pub fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8>, String> {
+pub fn save(
+    dotfile_list: Vec<String>,
+    destination_dir: String,
+    dry_run: bool,
+) -> Result<Vec<u8>, String> {
     let home_dir: String = home_path()?;
     write_template_readme(format!("{}/README.md", &destination_dir))?;
     dotfile_list
@@ -60,7 +66,7 @@ pub fn save(dotfile_list: Vec<String>, destination_dir: String) -> Result<Vec<u8
         .map(|dotfile| {
             let orig_file: String = format!("{}/{}", home_dir, dotfile);
             let dest_file: String = format!("{}/{}", destination_dir, dotfile);
-            copy_file(dest_file, orig_file)
+            copy_file(dest_file, orig_file, dry_run)
         })
         .collect()
 }
@@ -75,6 +81,7 @@ pub fn install(
     dotfile_list: Vec<String>,
     github_url: String,
     ssh_key_file: String,
+    dry_run: bool,
 ) -> Result<Vec<u8>, String> {
     let home_dir: String = home_path()?;
     let git_dotfiles_dir: String = format!("{}/dotfiles", &home_dir);
@@ -95,7 +102,7 @@ pub fn install(
         .map(|dotfile| {
             let orig_file: String = format!("{}/{}", &git_dotfiles_dir, dotfile);
             let dest_file: String = format!("{}/{}", home_dir, dotfile);
-            copy_file(dest_file, orig_file)
+            copy_file(dest_file, orig_file, dry_run)
         })
         .collect()
 }

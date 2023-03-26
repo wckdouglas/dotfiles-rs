@@ -19,7 +19,8 @@ fn run() -> Result<u8, String> {
                 let destination_dir: &str = sub_m
                     .value_of::<&str>("dest_dir")
                     .ok_or("No dest-dir provided")?;
-                save(dotfile_list, destination_dir.to_string())?;
+                let dry_run: bool = sub_m.get_flag("dry");
+                save(dotfile_list, destination_dir.to_string(), dry_run)?;
                 info!(
                     "You can now go to {} and create a github repo!",
                     destination_dir
@@ -33,7 +34,8 @@ fn run() -> Result<u8, String> {
                     .value_of::<&str>("ssh_key")
                     .unwrap_or(format!("{}/.ssh/id_rsa", &home_dir).as_str())
                     .to_string();
-                install(dotfile_list, github_url.to_string(), ssh_key_file)?;
+                let dry_run: bool = sub_m.get_flag("dry");
+                install(dotfile_list, github_url.to_string(), ssh_key_file, dry_run)?;
                 Ok(0)
             }
             _ => Err("Unsupported subcommand".to_string()),
