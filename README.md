@@ -25,16 +25,17 @@ We can use the `save` subcommand:
 
 ```
 $ cd dotfiles-rs
-$ dotfiles-rs --dotfile-yaml data/dotfiles.yaml save --dest-dir ../dotfiles
-[2022-11-14T04:14:17Z INFO  dotfiles_rs::readme_template] Written ../dotfiles/README.md
-[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.zshrc to ../dotfiles/.zshrc
-[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.config/alacritty/alacritty.yml to ../dotfiles/.config/alacritty/alacritty.yml
-[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.config/zellij/config.kdl to ../dotfiles/.config/zellij/config.kdl
-[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.gitconfig to ../dotfiles/.gitconfig
-[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.gitignore_global to ../dotfiles/.gitignore_global
-[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.ssh/config to ../dotfiles/.ssh/config
-[2022-11-14T04:14:17Z INFO  dotfiles_rs] Copied /Users/wckdouglas/.vimrc to ../dotfiles/.vimrc
-[2022-11-14T04:14:17Z INFO  dotfiles_rs] You can now go to ../dotfiles and create a github repo!
+$ dotfiles-rs --dotfile-yaml data/dotfiles.yaml save --dest-dir ../dotfiles --dry-run
+[2023-03-26T14:46:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/.zshrc to ../dotfiles/.zshrc
+[2023-03-26T14:46:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/.wezterm.lua to ../dotfiles/.wezterm.lua
+[2023-03-26T14:46:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/.config/nvim/init.lua to ../dotfiles/.config/nvim/init.lua
+[2023-03-26T14:46:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/.gitconfig to ../dotfiles/.gitconfig
+[2023-03-26T14:46:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/.vimrc to ../dotfiles/.vimrc
+[2023-03-26T14:46:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/.ssh/config to ../dotfiles/.ssh/config
+[2023-03-26T14:46:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/.gitignore_global to ../dotfiles/.gitignore_global
+[2023-03-26T14:46:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/.config/alacritty/alacritty.yml to ../dotfiles/.config/alacritty/alacritty.yml
+[2023-03-26T14:46:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/.config/zellij/config.kdl to ../dotfiles/.config/zellij/config.kdl
+[2023-03-26T14:46:43Z INFO  dotfiles_rs] You can now go to ../dotfiles and create a github repo!
 ```
 
 This creates a new folder `../dotfiles`, and it can be versione-controlled by `git`:
@@ -43,8 +44,13 @@ This creates a new folder `../dotfiles`, and it can be versione-controlled by `g
 $ tree -a -L 2 ../dotfiles
 ../dotfiles
 ├── .config
-│   ├── alacritty
-│   └── zellij
+├── .config
+│   ├── alacritty
+│   │   └── alacritty.yml
+│   ├── nvim
+│   │   └── init.lua
+│   └── zellij
+│       └── config.kdl
 ├── .gitconfig
 ├── .gitignore_global
 ├── .ssh
@@ -72,16 +78,18 @@ You will have to provide an url to the `dotfiles` repo (`<REMOTE_URL>`) that you
 
 ```
 $ cd dotfiles-rs
-$ dotfiles-rs --dotfile-yaml data/dotfiles.yaml apply --url https://github.com/wckdouglas/dotfiles  --ssh-key ~/.ssh/id_ecdsa
-[2022-11-13T15:51:19Z INFO  dotfiles_rs] Cloning git@github.com:wckdouglas/dotfiles.git into /Users/wckdouglas/dotfiles
-[2022-11-13T15:51:20Z INFO  dotfiles_rs] Clone complete
-[2022-11-13T15:51:20Z INFO  dotfiles_rs] Copied /Users/wckdouglas/dotfiles/.ssh/config to /Users/wckdouglas/.ssh/config
-[2022-11-13T15:51:20Z INFO  dotfiles_rs] Copied /Users/wckdouglas/dotfiles/.config/alacritty/alacritty.yml to /Users/wckdouglas/.config/alacritty/alacritty.yml
-[2022-11-13T15:51:20Z INFO  dotfiles_rs] Copied /Users/wckdouglas/dotfiles/.vimrc to /Users/wckdouglas/.vimrc
-[2022-11-13T15:51:20Z INFO  dotfiles_rs] Copied /Users/wckdouglas/dotfiles/.gitignore_global to /Users/wckdouglas/.gitignore_global
-[2022-11-13T15:51:20Z INFO  dotfiles_rs] Copied /Users/wckdouglas/dotfiles/.gitconfig to /Users/wckdouglas/.gitconfig
-[2022-11-13T15:51:20Z INFO  dotfiles_rs] Copied /Users/wckdouglas/dotfiles/.zshrc to /Users/wckdouglas/.zshrc
-[2022-11-13T15:51:20Z INFO  dotfiles_rs] Copied /Users/wckdouglas/dotfiles/.config/zellij/config.kdl to /Users/wckdouglas/.config/zellij/config.kdl
+$ dotfiles-rs --dotfile-yaml data/dotfiles.yaml apply --url git@github.com:wckdouglas/dotfiles  --ssh-key ~/.ssh/id_ecdsa --dry-run
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] Cloning git@github.com:wckdouglas/dotfiles into /Users/wckdouglas/dotfiles
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] Clone complete
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/dotfiles/.wezterm.lua to /Users/wckdouglas/.wezterm.lua
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/dotfiles/.vimrc to /Users/wckdouglas/.vimrc
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/dotfiles/.config/alacritty/alacritty.yml to /Users/wckdouglas/.config/alacritty/alacritty.yml
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/dotfiles/.config/nvim/init.lua to /Users/wckdouglas/.config/nvim/init.lua
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/dotfiles/.ssh/config to /Users/wckdouglas/.ssh/config
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/dotfiles/.gitignore_global to /Users/wckdouglas/.gitignore_global
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/dotfiles/.zshrc to /Users/wckdouglas/.zshrc
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/dotfiles/.config/zellij/config.kdl to /Users/wckdouglas/.config/zellij/config.kdl
+[2023-03-26T14:51:43Z INFO  dotfiles_rs] [Dry run] Copied /Users/wckdouglas/dotfiles/.gitconfig to /Users/wckdouglas/.gitconfig
 ```
 
 :warning: You may need to create a [ecdsa ssh key](https://exerror.com/youre-using-an-rsa-key-with-sha-1-which-is-no-longer-allowed-please-use-a-newer-client-or-a-different-key-type/) first `ssh-keygen -t ecdsa -b 521 -C "your_email@example.com"` if you see an error like this:
