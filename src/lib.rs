@@ -25,6 +25,7 @@ struct DotFiles {
 /// # Args
 /// - `dest_file`: a file path pointing to the output file name
 /// - `orig_file`: the file path to the original file
+/// - `dry_run`: only print out what will be done
 ///
 /// # Return
 /// - Result<u8, String>: return code for the mkdir/copy operation
@@ -39,10 +40,12 @@ fn copy_file(dest_file: String, orig_file: String, dry_run: bool) -> Result<u8, 
     }
 
     // copy over the file
+    let mut label: &str = "Dry run";
     if !dry_run {
         copy(source_file_pathbuf, dest_file_pathbuf).map_err(|e| e.to_string())?;
+        label = "Shell";
     }
-    info!("Copied {} to {}", orig_file, dest_file,);
+    info!("[{}] Copied {} to {}", label, orig_file, dest_file,);
     Ok(0)
 }
 
@@ -60,7 +63,13 @@ pub fn save(
     dry_run: bool,
 ) -> Result<Vec<u8>, String> {
     let home_dir: String = home_path()?;
-    write_template_readme(format!("{}/README.md", &destination_dir))?;
+    // writing a readme for the new dotfile repo
+
+    if !dry_run {
+        write_template_readme(format!("{}/README.md", &destination_dir))?;
+    }
+
+    // copy over the dotfiles
     dotfile_list
         .into_par_iter()
         .map(|dotfile| {
@@ -84,9 +93,12 @@ pub fn install(
     dry_run: bool,
 ) -> Result<Vec<u8>, String> {
     let home_dir: String = home_path()?;
+
+    // define where to clone the dotfile repo
     let git_dotfiles_dir: String = format!("{}/dotfiles", &home_dir);
     let git_dotfiles_path: &Path = Path::new(&git_dotfiles_dir);
 
+    // cloning the repo
     let _repo = match git_dotfiles_path.exists() {
         true => Repository::open(git_dotfiles_path)
             .map_err(|_| format!("Folder not exists: {}", git_dotfiles_dir)),
@@ -97,6 +109,9 @@ pub fn install(
             repo
         }
     }?;
+
+    // copy over the files to the desinated folders
+    // from the cloned repo
     dotfile_list
         .into_par_iter()
         .map(|dotfile| {

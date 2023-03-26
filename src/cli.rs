@@ -18,6 +18,8 @@ pub fn command() -> Result<ArgMatches, String> {
                 .required(true),
         )
         .subcommand(
+            // the first subcommand is to save the 
+            // needed config files into a new dir
             SubCommand::with_name("save")
                 .about("Save dotfiles into a folder")
                 .arg(
@@ -39,6 +41,8 @@ pub fn command() -> Result<ArgMatches, String> {
         )
         .subcommand(
             SubCommand::with_name("apply")
+                // the second subcommand is to clone a github dotfile repo
+                // and apply the files
                 .about("Applying dotfiles from a github url")
                 .arg(
                     Arg::with_name("url")
