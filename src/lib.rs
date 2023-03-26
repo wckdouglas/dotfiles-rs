@@ -183,7 +183,7 @@ fn git_clone(
 /// use dotfiles_rs::read_yaml;
 ///
 /// let dotfile_list = read_yaml("data/dotfiles.yaml").unwrap();
-/// assert_eq!(dotfile_list.len(), 8);
+/// assert_eq!(dotfile_list.len(), 9);
 /// ```
 pub fn read_yaml(yaml_fn: &str) -> Result<Vec<String>, String> {
     let f: File = File::open(yaml_fn).map_err(|e| e.to_string())?;
