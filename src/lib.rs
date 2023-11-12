@@ -80,12 +80,38 @@ pub fn save(
         .collect()
 }
 
+/// Apply the dotfiles from a given directory
+///
+/// # Args
+/// - `dotfile_list`: a list of dot files to be installed from the dotfiles directory
+/// - `dotfiles_dir`: a give directory storing the dotfiles
+/// - `dry_run`: if true, only print, not do copy
+pub fn apply(
+    dotfile_list: Vec<String>,
+    dotfiles_dir: String,
+    dry_run: bool,
+) -> Result<Vec<u8>, String> {
+    info!("Applying dotfiles from: {}", dotfiles_dir);
+    let home_dir: String = home_path()?;
+    // copy over the files to the desinated folders
+    // from the cloned repo
+    dotfile_list
+        .into_par_iter()
+        .map(|dotfile| {
+            let orig_file: String = format!("{}/{}", dotfiles_dir, dotfile);
+            let dest_file: String = format!("{}/{}", home_dir, dotfile);
+            copy_file(dest_file, orig_file, dry_run)
+        })
+        .collect()
+}
+
 /// Installing the dotfiles from a github repo
 ///
 /// # Args
 /// - `dotfile_list`: a list of dot files to be installed from the github repo
 /// - `github_url`: a valid github url for the repo (e.g. git@github.com:wckdouglas/dotfiles.git, must starts with git@github.com)
 /// - `ssh_key_file`: a ssh key file for github authentication (e.g. ~/.ssh/id_rsa)
+/// - `dry_run`: if true, only print, not do copy
 pub fn install(
     dotfile_list: Vec<String>,
     github_url: String,
@@ -109,17 +135,8 @@ pub fn install(
             repo
         }
     }?;
-
-    // copy over the files to the desinated folders
-    // from the cloned repo
-    dotfile_list
-        .into_par_iter()
-        .map(|dotfile| {
-            let orig_file: String = format!("{}/{}", &git_dotfiles_dir, dotfile);
-            let dest_file: String = format!("{}/{}", home_dir, dotfile);
-            copy_file(dest_file, orig_file, dry_run)
-        })
-        .collect()
+    // applying dotfiles
+    apply(dotfile_list, git_dotfiles_dir, dry_run)
 }
 
 /// Cloning a github repo with a given ssh key file

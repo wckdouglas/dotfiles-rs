@@ -1,6 +1,6 @@
 use dotfiles_rs::cli::command;
 use dotfiles_rs::path::home_path;
-use dotfiles_rs::{install, read_yaml, save};
+use dotfiles_rs::{apply, install, read_yaml, save};
 use log::info;
 
 /// Wrapper function to run the workflow
@@ -27,7 +27,7 @@ fn run() -> Result<u8, String> {
                 );
                 Ok(0)
             }
-            "apply" => {
+            "apply-gh" => {
                 let github_url: &str =
                     sub_m.value_of::<&str>("url").ok_or("No git url provided")?;
                 let ssh_key_file: String = sub_m
@@ -36,6 +36,14 @@ fn run() -> Result<u8, String> {
                     .to_string();
                 let dry_run: bool = sub_m.get_flag("dry");
                 install(dotfile_list, github_url.to_string(), ssh_key_file, dry_run)?;
+                Ok(0)
+            }
+            "apply" => {
+                let dry_run: bool = sub_m.get_flag("dry");
+                let dotfiles_dir: &str = sub_m
+                    .value_of::<&str>("dir")
+                    .ok_or("No dotfiles-dir provided")?;
+                apply(dotfile_list, dotfiles_dir.to_string(), dry_run)?;
                 Ok(0)
             }
             _ => Err("Unsupported subcommand".to_string()),
