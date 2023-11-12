@@ -1,4 +1,4 @@
-FROM --platform=linux/x86_64/v8 rust:1.65.0-slim-buster as builder
+FROM --platform=linux/amd64/v3 rust:1.65.0-slim-buster as builder
 RUN apt-get update \
     && apt-get install -y libssl-dev pkg-config \
     && rm -rf /var/lib/apt/lists/* 
