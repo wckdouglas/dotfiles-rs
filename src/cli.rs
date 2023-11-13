@@ -40,7 +40,7 @@ pub fn command() -> Result<ArgMatches, String> {
                     )
         )
         .subcommand(
-            SubCommand::with_name("apply")
+            SubCommand::with_name("apply-gh")
                 // the second subcommand is to clone a github dotfile repo
                 // and apply the files
                 .about("Applying dotfiles from a github url")
@@ -64,6 +64,30 @@ pub fn command() -> Result<ArgMatches, String> {
                     Arg::with_name("dry")
                         .help("Dry run")
                         .long("dry-run")
+                        .short('n')
+                        .takes_value(false)
+                        .required(false)
+                        .action(ArgAction::SetTrue)
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("apply")
+                // the second subcommand is to clone a github dotfile repo
+                // and apply the files
+                .about("Applying dotfiles from a cloned dotfiles dir")
+                .arg(
+                    Arg::with_name("dir")
+                        .help("The directory to dotfiles")
+                        .short('d')
+                        .long("dir")
+                        .takes_value(true)
+                        .required(true),
+                )
+                .arg(
+                    Arg::with_name("dry")
+                        .help("Dry run")
+                        .long("dry-run")
+                        .short('n')
                         .takes_value(false)
                         .required(false)
                         .action(ArgAction::SetTrue)
